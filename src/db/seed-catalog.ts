@@ -4,17 +4,61 @@ import { pool } from './connection';
 // This matches the frontend ai-catalog.ts structure
 
 const catalogItems = [
-  // Models
-  { id: 'openai:gpt-4.1', name: 'GPT-4.1', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial'] },
-  { id: 'openai:gpt-4.1-mini', name: 'GPT-4.1 Mini', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial', 'cost-effective'] },
+  // OpenAI Models
+  { id: 'openai:gpt-4o', name: 'GPT-4o', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial', 'multimodal'] },
+  { id: 'openai:gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial', 'cost-effective'] },
+  { id: 'openai:gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial'] },
+  { id: 'openai:gpt-4', name: 'GPT-4', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial'] },
+  { id: 'openai:gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial', 'cost-effective'] },
+  { id: 'openai:o1', name: 'o1', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial', 'reasoning'] },
+  { id: 'openai:o1-mini', name: 'o1 Mini', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial', 'reasoning', 'cost-effective'] },
+  { id: 'openai:o3-mini', name: 'o3 Mini', provider: 'OpenAI', category: 'model', tags: ['llm', 'commercial', 'reasoning'] },
+
+  // Anthropic Models
+  { id: 'anthropic:claude-sonnet-4', name: 'Claude Sonnet 4', provider: 'Anthropic', category: 'model', tags: ['llm', 'commercial'] },
+  { id: 'anthropic:claude-3.7-sonnet', name: 'Claude 3.7 Sonnet', provider: 'Anthropic', category: 'model', tags: ['llm', 'commercial'] },
   { id: 'anthropic:claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', provider: 'Anthropic', category: 'model', tags: ['llm', 'commercial'] },
   { id: 'anthropic:claude-3.5-haiku', name: 'Claude 3.5 Haiku', provider: 'Anthropic', category: 'model', tags: ['llm', 'commercial', 'fast'] },
+  { id: 'anthropic:claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', category: 'model', tags: ['llm', 'commercial'] },
+
+  // Google Models
+  { id: 'google:gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash Experimental', provider: 'Google', category: 'model', tags: ['llm', 'commercial', 'multimodal', 'experimental'] },
+  { id: 'google:gemini-exp-1206', name: 'Gemini Experimental 1206', provider: 'Google', category: 'model', tags: ['llm', 'commercial', 'experimental'] },
   { id: 'google:gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'Google', category: 'model', tags: ['llm', 'commercial', 'multimodal'] },
-  { id: 'aws:bedrock-titan-text-premier', name: 'Bedrock Titan Text Premier', provider: 'AWS', category: 'model', tags: ['llm', 'commercial'] },
-  { id: 'mistral:mixtral-8x7b', name: 'Mixtral 8x7B', provider: 'Mistral AI', category: 'model', tags: ['llm', 'open-weights'] },
+  { id: 'google:gemini-1.5-flash', name: 'Gemini 1.5 Flash', provider: 'Google', category: 'model', tags: ['llm', 'commercial', 'fast'] },
+
+  // Meta Llama Models
+  { id: 'meta:llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', category: 'model', tags: ['llm', 'open-weights'] },
+  { id: 'meta:llama-3.1-405b', name: 'Llama 3.1 405B', provider: 'Meta', category: 'model', tags: ['llm', 'open-weights', 'large'] },
+  { id: 'meta:llama-3.1-70b', name: 'Llama 3.1 70B', provider: 'Meta', category: 'model', tags: ['llm', 'open-weights'] },
+  { id: 'meta:llama-3.1-8b', name: 'Llama 3.1 8B', provider: 'Meta', category: 'model', tags: ['llm', 'open-weights', 'small'] },
   { id: 'meta:llama-3-70b', name: 'Llama 3 70B', provider: 'Meta', category: 'model', tags: ['llm', 'open-weights'] },
   { id: 'meta:llama-3-8b', name: 'Llama 3 8B', provider: 'Meta', category: 'model', tags: ['llm', 'open-weights', 'small'] },
+
+  // Mistral Models
+  { id: 'mistral:mistral-large-2', name: 'Mistral Large 2', provider: 'Mistral AI', category: 'model', tags: ['llm', 'commercial'] },
+  { id: 'mistral:mistral-small', name: 'Mistral Small', provider: 'Mistral AI', category: 'model', tags: ['llm', 'commercial', 'cost-effective'] },
+  { id: 'mistral:mixtral-8x22b', name: 'Mixtral 8x22B', provider: 'Mistral AI', category: 'model', tags: ['llm', 'open-weights'] },
+  { id: 'mistral:mixtral-8x7b', name: 'Mixtral 8x7B', provider: 'Mistral AI', category: 'model', tags: ['llm', 'open-weights'] },
+
+  // Cohere Models
+  { id: 'cohere:command-r-plus', name: 'Command R+', provider: 'Cohere', category: 'model', tags: ['llm', 'commercial'] },
+  { id: 'cohere:command-r', name: 'Command R', provider: 'Cohere', category: 'model', tags: ['llm', 'commercial'] },
   { id: 'cohere:command', name: 'Command', provider: 'Cohere', category: 'model', tags: ['llm', 'commercial'] },
+
+  // AWS Bedrock Models
+  { id: 'aws:bedrock-titan-text-premier', name: 'Bedrock Titan Text Premier', provider: 'AWS', category: 'model', tags: ['llm', 'commercial'] },
+  { id: 'aws:bedrock-titan-text-express', name: 'Bedrock Titan Text Express', provider: 'AWS', category: 'model', tags: ['llm', 'commercial'] },
+
+  // DeepSeek Models
+  { id: 'deepseek:deepseek-v3', name: 'DeepSeek V3', provider: 'DeepSeek', category: 'model', tags: ['llm', 'open-weights'] },
+  { id: 'deepseek:deepseek-r1', name: 'DeepSeek R1', provider: 'DeepSeek', category: 'model', tags: ['llm', 'open-weights', 'reasoning'] },
+
+  // Qwen Models
+  { id: 'qwen:qwen2.5-72b', name: 'Qwen 2.5 72B', provider: 'Alibaba Cloud', category: 'model', tags: ['llm', 'open-weights'] },
+  { id: 'qwen:qwq-32b', name: 'QwQ 32B', provider: 'Alibaba Cloud', category: 'model', tags: ['llm', 'open-weights', 'reasoning'] },
+
+  // High-Risk / Wildcard Models
   { id: 'llama-uncensored-*', name: 'Llama Uncensored (Wildcard)', provider: 'Community', category: 'model', tags: ['uncensored', 'high-risk'] },
   { id: 'wizardlm-uncensored-*', name: 'WizardLM Uncensored (Wildcard)', provider: 'Community', category: 'model', tags: ['uncensored', 'high-risk'] },
   { id: 'gpt4free-*', name: 'GPT4Free (Wildcard)', provider: 'Community', category: 'model', tags: ['reverse-engineered', 'high-risk'] },
