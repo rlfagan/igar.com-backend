@@ -71,8 +71,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 // POST create new AI catalog policy
 router.post('/', async (req: Request, res: Response) => {
+  const client = await pool.connect();
+
   try {
-    const { name, description, approved, denied, review } = req.body;
+    const { name, description, approved, denied, review, use_case_restrictions } = req.body;
 
     if (!name) {
       return res.status(400).json({
@@ -88,7 +90,7 @@ router.post('/', async (req: Request, res: Response) => {
       .replace(/^-|-$/g, '');
 
     // Check if slug already exists
-    const existingPolicy = await pool.query(
+    const existingPolicy = await client.query(
       'SELECT id FROM ai_catalog_policies WHERE slug = $1',
       [slug]
     );
@@ -100,7 +102,10 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const result = await pool.query(`
+    // Start transaction
+    await client.query('BEGIN');
+
+    const result = await client.query(`
       INSERT INTO ai_catalog_policies (
         name, slug, description,
         approved_models, approved_tools, approved_oss, approved_datasets,
@@ -133,17 +138,56 @@ router.post('/', async (req: Request, res: Response) => {
       review?.use_cases || [],
     ]);
 
+    const policyId = result.rows[0].id;
+
+    // Save use case restrictions if provided
+    if (use_case_restrictions && Array.isArray(use_case_restrictions)) {
+      for (const restriction of use_case_restrictions) {
+        const { itemId, mode, allowedUseCases, deniedUseCases } = restriction;
+
+        // Determine category from the item ID being in which list
+        let category = 'model';
+        if (approved?.tools?.includes(itemId) || denied?.tools?.includes(itemId) || review?.tools?.includes(itemId)) {
+          category = 'tool';
+        } else if (approved?.oss?.includes(itemId) || denied?.oss?.includes(itemId) || review?.oss?.includes(itemId)) {
+          category = 'oss';
+        } else if (approved?.datasets?.includes(itemId) || denied?.datasets?.includes(itemId) || review?.datasets?.includes(itemId)) {
+          category = 'dataset';
+        }
+
+        await client.query(`
+          INSERT INTO policy_resource_restrictions (
+            policy_id, resource_id, resource_category, approval_status,
+            use_case_restriction_mode, allowed_use_cases, denied_use_cases
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [
+          policyId,
+          itemId,
+          category,
+          'approved', // Only approved items have restrictions
+          mode,
+          mode === 'whitelist' ? allowedUseCases : [],
+          mode === 'blacklist' ? deniedUseCases : [],
+        ]);
+      }
+    }
+
+    await client.query('COMMIT');
+
     res.status(201).json({
       success: true,
       message: 'AI catalog policy created successfully',
       policy: result.rows[0],
     });
   } catch (error) {
+    await client.query('ROLLBACK');
     console.error('Error creating AI catalog policy:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create AI catalog policy',
     });
+  } finally {
+    client.release();
   }
 });
 
