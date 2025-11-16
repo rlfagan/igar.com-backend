@@ -74,7 +74,7 @@ router.post('/', async (req: Request, res: Response) => {
   const client = await pool.connect();
 
   try {
-    const { name, description, approved, denied, review, use_case_restrictions } = req.body;
+    const { name, description, approved, denied, review, use_case_restrictions, is_global, department_ids } = req.body;
 
     if (!name) {
       return res.status(400).json({
@@ -110,12 +110,14 @@ router.post('/', async (req: Request, res: Response) => {
         name, slug, description,
         approved_models, approved_tools, approved_oss, approved_datasets,
         denied_models, denied_tools, denied_oss, denied_datasets, denied_use_cases,
-        review_models, review_tools, review_oss, review_datasets, review_use_cases
+        review_models, review_tools, review_oss, review_datasets, review_use_cases,
+        is_global
       ) VALUES (
         $1, $2, $3,
         $4, $5, $6, $7,
         $8, $9, $10, $11, $12,
-        $13, $14, $15, $16, $17
+        $13, $14, $15, $16, $17,
+        $18
       )
       RETURNING *
     `, [
@@ -136,6 +138,7 @@ router.post('/', async (req: Request, res: Response) => {
       review?.oss || [],
       review?.datasets || [],
       review?.use_cases || [],
+      is_global !== false, // Default to true if not specified
     ]);
 
     const policyId = result.rows[0].id;
@@ -169,6 +172,16 @@ router.post('/', async (req: Request, res: Response) => {
           mode === 'whitelist' ? allowedUseCases : [],
           mode === 'blacklist' ? deniedUseCases : [],
         ]);
+      }
+    }
+
+    // Save department assignments if provided
+    if (department_ids && Array.isArray(department_ids) && department_ids.length > 0) {
+      for (const departmentId of department_ids) {
+        await client.query(`
+          INSERT INTO policy_departments (policy_id, department_id)
+          VALUES ($1, $2)
+        `, [policyId, departmentId]);
       }
     }
 

@@ -12,6 +12,7 @@ import governanceRouter from './routes/governance';
 import modelsRouter from './routes/models';
 import aiChatRouter from './routes/ai-chat';
 import aiCatalogRouter from './routes/ai-catalog';
+import departmentsRouter from './routes/departments';
 
 dotenv.config();
 
@@ -78,6 +79,7 @@ app.use('/api/governance', governanceRouter);
 app.use('/api/models', modelsRouter);
 app.use('/api', aiChatRouter);
 app.use('/api/ai-catalog', aiCatalogRouter);
+app.use('/api/departments', departmentsRouter);
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: any) => {
