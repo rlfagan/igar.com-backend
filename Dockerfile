@@ -1,5 +1,8 @@
 FROM node:20-alpine
 
+# Install PostgreSQL and supervisor (to run both postgres and node)
+RUN apk add --no-cache postgresql postgresql-contrib supervisor su-exec
+
 WORKDIR /app
 
 # Copy package files
@@ -14,14 +17,25 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-# Don't remove tsx as it's needed for migrations
-# RUN npm prune --omit=dev
-
 # Create uploads directory
 RUN mkdir -p /app/uploads
+
+# Create postgres data directory
+RUN mkdir -p /var/lib/postgresql/data && \
+    chown -R postgres:postgres /var/lib/postgresql
+
+# Copy database dump
+COPY igar_clean_database.sql /tmp/igar_clean_database.sql
+
+# Copy supervisor config and entrypoint script
+COPY supervisord.conf /etc/supervisord.conf
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Expose port
 EXPOSE 9501
 
-# Run migrations and start
-CMD ["sh", "-c", "npm run migrate && npm start"]
+# Set default DATABASE_URL for local postgres
+ENV DATABASE_URL=postgresql://aiuser:aipassword@localhost:5432/ai_intake
+
+ENTRYPOINT ["/entrypoint.sh"]
