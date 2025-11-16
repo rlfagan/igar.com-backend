@@ -28,6 +28,8 @@ app.use(cors({
       /^http:\/\/192\.168\.\d+\.\d+:9500$/,  // Common local network
       /^http:\/\/172\.\d+\.\d+\.\d+:9500$/,  // Docker network
       /^https:\/\/.*\.vercel\.app$/,  // All Vercel deployments
+      'https://igar.ai',  // Production domain
+      'https://www.igar.ai',  // Production www subdomain
     ];
 
     // Add production frontend URL from environment variable
