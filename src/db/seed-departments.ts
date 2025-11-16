@@ -1,4 +1,4 @@
-import { pool } from './connection';
+import pool from './index';
 
 const departments = [
   { name: 'Engineering', slug: 'engineering', description: 'Software development and technical teams' },

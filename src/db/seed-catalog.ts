@@ -1,4 +1,4 @@
-import { pool } from './connection';
+import pool from './index';
 
 // AI Catalog - Available models, tools, datasets, and use cases
 // This matches the frontend ai-catalog.ts structure
