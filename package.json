@@ -10,7 +10,8 @@
     "migrate": "tsx src/db/migrate.ts",
     "seed": "tsx src/db/seed.ts",
     "seed-policies": "tsx src/db/seed-policies.ts",
-    "seed-catalog": "tsx src/db/seed-catalog.ts"
+    "seed-catalog": "tsx src/db/seed-catalog.ts",
+    "seed-departments": "tsx src/db/seed-departments.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
