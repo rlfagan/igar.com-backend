@@ -1,0 +1,26 @@
+services:
+  # Local PostgreSQL database for IGAR
+  postgres:
+    image: postgres:16-alpine
+    container_name: igar-postgres-local
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: igar_local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d igar_local"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: igar-local-network

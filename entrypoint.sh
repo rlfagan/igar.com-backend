@@ -38,18 +38,9 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   echo "Database initialized and seeded!"
 fi
 
-# Start postgres before running migrations (port 5432)
-su-exec postgres pg_ctl -D /var/lib/postgresql/data -o "-p 5432" -w start
-
-# Run migrations and catalog seeding
-echo "Running migrations..."
-npm run migrate || echo "Migrations completed or already applied"
-echo "Seeding catalog..."
-npm run seed-catalog || echo "Catalog already seeded"
-
-# Stop postgres cleanly before handing off to supervisord
-echo "Stopping postgres to hand off to supervisord..."
-su-exec postgres pg_ctl -D /var/lib/postgresql/data stop -w
+# Database is already fully seeded from the SQL dump
+# No need to run migrations or seeding scripts
+echo "Database loaded from pre-seeded dump - ready to start!"
 
 # Start supervisord
 exec /usr/bin/supervisord -c /etc/supervisord.conf

@@ -35,15 +35,8 @@ CREATE INDEX idx_ai_catalog_items_provider ON ai_catalog_items(provider);
 CREATE INDEX idx_ai_catalog_items_active ON ai_catalog_items(is_active);
 CREATE INDEX idx_ai_catalog_items_tags ON ai_catalog_items USING GIN(tags);
 
--- Full text search index
-CREATE INDEX idx_ai_catalog_items_search ON ai_catalog_items USING GIN(
-  to_tsvector('english',
-    COALESCE(name, '') || ' ' ||
-    COALESCE(provider, '') || ' ' ||
-    COALESCE(description, '') || ' ' ||
-    COALESCE(array_to_string(tags, ' '), '')
-  )
-);
+-- Note: Full-text search index removed due to PostgreSQL 16+ immutability requirements
+-- Can be added back using triggers if needed
 
 COMMENT ON TABLE ai_catalog_items IS 'Dynamic AI catalog that can be managed through admin UI';
 COMMENT ON COLUMN ai_catalog_items.catalog_id IS 'Unique identifier like "openai:gpt-4.1" or "fraud-detection"';
