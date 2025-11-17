@@ -35,5 +35,15 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   echo "Database initialized and seeded!"
 fi
 
+# Start postgres before running migrations
+su-exec postgres pg_ctl -D /var/lib/postgresql/data -w start > /dev/null 2>&1 &
+sleep 3
+
+# Run migrations and catalog seeding
+echo "Running migrations..."
+npm run migrate || echo "Migrations completed or already applied"
+echo "Seeding catalog..."
+npm run seed-catalog || echo "Catalog already seeded"
+
 # Start supervisord
 exec /usr/bin/supervisord -c /etc/supervisord.conf
