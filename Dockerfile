@@ -5,6 +5,7 @@ RUN apk add --no-cache postgresql postgresql-contrib supervisor su-exec
 
 WORKDIR /app
 
+# Cache bust to force rebuild with new package.json - 2025-11-17
 # Copy package files
 COPY package*.json ./
 
