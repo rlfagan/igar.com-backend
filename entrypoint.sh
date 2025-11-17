@@ -10,6 +10,9 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   echo "Initializing PostgreSQL database..."
   su-exec postgres initdb -D /var/lib/postgresql/data
 
+  # Configure PostgreSQL to use port 5432 (not PORT env var from Railway)
+  echo "port = 5432" >> /var/lib/postgresql/data/postgresql.conf
+
   # Start postgres temporarily
   su-exec postgres pg_ctl -D /var/lib/postgresql/data -w start
 
@@ -35,8 +38,8 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   echo "Database initialized and seeded!"
 fi
 
-# Start postgres before running migrations
-su-exec postgres pg_ctl -D /var/lib/postgresql/data -w start > /dev/null 2>&1 &
+# Start postgres before running migrations (port 5432)
+su-exec postgres pg_ctl -D /var/lib/postgresql/data -o "-p 5432" -w start > /dev/null 2>&1 &
 sleep 3
 
 # Run migrations and catalog seeding
