@@ -15,6 +15,7 @@ import aiCatalogRouter from './routes/ai-catalog';
 import departmentsRouter from './routes/departments';
 import authRouter from './routes/auth';
 import usersRouter from './routes/users';
+import devToolsRouter from './routes/dev-tools';
 
 dotenv.config();
 
@@ -77,6 +78,7 @@ app.get('/health', (req: Request, res: Response) => {
 // API routes
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/dev', devToolsRouter);
 app.use('/api/submissions', submissionsRouter);
 app.use('/api/uploads', uploadsRouter);
 app.use('/api/reference', referenceRouter);
