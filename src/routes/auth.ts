@@ -43,9 +43,9 @@ router.post('/register', async (req: Request, res: Response) => {
 
     // Create user
     const result = await pool.query(
-      `INSERT INTO users (email, password_hash, name, role)
+      `INSERT INTO users (email, password_hash, full_name, role)
        VALUES ($1, $2, $3, $4)
-       RETURNING id, email, name, role, created_at`,
+       RETURNING id, email, full_name as name, role, created_at`,
       [data.email, hashedPassword, data.name, role]
     );
 
@@ -92,7 +92,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     // Find user
     const result = await pool.query(
-      'SELECT id, email, password_hash, name, role FROM users WHERE email = $1',
+      'SELECT id, email, password_hash, full_name as name, role FROM users WHERE email = $1',
       [data.email]
     );
 
@@ -158,7 +158,7 @@ router.get('/me', async (req: Request, res: Response) => {
 
     // Get fresh user data
     const result = await pool.query(
-      'SELECT id, email, name, role FROM users WHERE id = $1',
+      'SELECT id, email, full_name as name, role FROM users WHERE id = $1',
       [decoded.id]
     );
 
