@@ -32,8 +32,8 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   su-exec postgres psql -d ai_intake -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO aiuser;"
   su-exec postgres psql -d ai_intake -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO aiuser;"
 
-  # Stop postgres
-  su-exec postgres pg_ctl -D /var/lib/postgresql/data stop
+  # Stop postgres cleanly
+  su-exec postgres pg_ctl -D /var/lib/postgresql/data stop -w
 
   echo "Database initialized and seeded!"
 fi
