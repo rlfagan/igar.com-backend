@@ -39,7 +39,4 @@ EXPOSE 9501
 # Set default DATABASE_URL for local postgres
 ENV DATABASE_URL=postgresql://aiuser:aipassword@localhost:5432/ai_intake
 
-# Declare volume for PostgreSQL data persistence in Railway
-VOLUME ["/var/lib/postgresql/data"]
-
 ENTRYPOINT ["/entrypoint.sh"]
