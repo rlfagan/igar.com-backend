@@ -191,7 +191,7 @@ router.post('/', async (req: Request, res: Response) => {
         data.description,
         data.industry,
         data.is_default || false,
-        (req as any).user?.id || 1,
+        (req as any).user?.id || null,
       ]
     );
 
