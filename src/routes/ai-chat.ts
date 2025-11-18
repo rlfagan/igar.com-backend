@@ -92,13 +92,15 @@ Keep your responses:
     const messages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
 
     // Add previous conversation (limit to last 10 messages to avoid token limits)
-    const recentHistory = conversationHistory.slice(-10);
-    recentHistory.forEach((msg) => {
-      messages.push({
-        role: msg.role,
-        content: msg.content,
+    if (conversationHistory && Array.isArray(conversationHistory)) {
+      const recentHistory = conversationHistory.slice(-10);
+      recentHistory.forEach((msg) => {
+        messages.push({
+          role: msg.role,
+          content: msg.content,
+        });
       });
-    });
+    }
 
     // Add current message
     messages.push({
