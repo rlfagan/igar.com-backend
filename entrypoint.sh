@@ -18,15 +18,18 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
 
   # Create database and user
   echo "Creating database and user..."
-  su-exec postgres psql -c "CREATE DATABASE ai_intake;"
-  su-exec postgres psql -c "CREATE USER aiuser WITH PASSWORD 'aipassword';" || true
-  su-exec postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ai_intake TO aiuser;"
-  su-exec postgres psql -d ai_intake -c "GRANT ALL ON SCHEMA public TO aiuser;"
-  su-exec postgres psql -d ai_intake -c "ALTER SCHEMA public OWNER TO aiuser;"
+  su-exec postgres psql -c "CREATE DATABASE ai_intake;" 2>&1
+  echo "Database created!"
+  su-exec postgres psql -c "CREATE USER aiuser WITH PASSWORD 'aipassword';" 2>&1 || true
+  echo "User created!"
+  su-exec postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ai_intake TO aiuser;" 2>&1
+  su-exec postgres psql -d ai_intake -c "GRANT ALL ON SCHEMA public TO aiuser;" 2>&1
+  su-exec postgres psql -d ai_intake -c "ALTER SCHEMA public OWNER TO aiuser;" 2>&1
+  echo "Permissions granted!"
 
   # Import data
   echo "Importing database dump..."
-  su-exec postgres psql ai_intake < /tmp/igar_clean_database.sql
+  su-exec postgres psql ai_intake < /tmp/igar_clean_database.sql 2>&1
   echo "Database dump imported successfully!"
 
   # Grant permissions to aiuser on all objects
