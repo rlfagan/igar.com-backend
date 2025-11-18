@@ -16,6 +16,7 @@ import departmentsRouter from './routes/departments';
 import authRouter from './routes/auth';
 import usersRouter from './routes/users';
 import devToolsRouter from './routes/dev-tools';
+import policyRulesRouter from './routes/policy-rules';
 
 dotenv.config();
 
@@ -83,6 +84,7 @@ app.use('/api/submissions', submissionsRouter);
 app.use('/api/uploads', uploadsRouter);
 app.use('/api/reference', referenceRouter);
 app.use('/api/policies', policiesRouter);
+app.use('/api/policies', policyRulesRouter);
 app.use('/api/ai-policies', aiPoliciesRouter);
 app.use('/api/governance', governanceRouter);
 app.use('/api/models', modelsRouter);
