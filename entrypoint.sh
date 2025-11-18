@@ -20,7 +20,7 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   echo "Creating database and user..."
   su-exec postgres psql -c "CREATE DATABASE ai_intake;" 2>&1
   echo "Database created!"
-  su-exec postgres psql -c "CREATE USER aiuser WITH PASSWORD 'aipassword';" 2>&1 || true
+  su-exec postgres psql -c "CREATE USER aiuser WITH PASSWORD 'aipassword' SUPERUSER;" 2>&1 || true
   echo "User created!"
   su-exec postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ai_intake TO aiuser;" 2>&1
   su-exec postgres psql -d ai_intake -c "GRANT ALL ON SCHEMA public TO aiuser;" 2>&1
@@ -37,6 +37,16 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   su-exec postgres psql -d ai_intake -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO aiuser;"
   su-exec postgres psql -d ai_intake -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO aiuser;"
   su-exec postgres psql -d ai_intake -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO aiuser;"
+
+  # Make aiuser the owner of all tables to ensure full write permissions
+  for table in $(su-exec postgres psql -d ai_intake -t -c "SELECT tablename FROM pg_tables WHERE schemaname='public';"); do
+    su-exec postgres psql -d ai_intake -c "ALTER TABLE $table OWNER TO aiuser;" 2>&1
+  done
+
+  # Make aiuser the owner of all sequences
+  for seq in $(su-exec postgres psql -d ai_intake -t -c "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema='public';"); do
+    su-exec postgres psql -d ai_intake -c "ALTER SEQUENCE $seq OWNER TO aiuser;" 2>&1
+  done
 
   # Stop postgres cleanly
   su-exec postgres pg_ctl -D /var/lib/postgresql/data stop -w
