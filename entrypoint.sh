@@ -17,6 +17,7 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   su-exec postgres pg_ctl -D /var/lib/postgresql/data -w start
 
   # Create database and user
+  echo "Creating database and user..."
   su-exec postgres psql -c "CREATE DATABASE ai_intake;"
   su-exec postgres psql -c "CREATE USER aiuser WITH PASSWORD 'aipassword';" || true
   su-exec postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ai_intake TO aiuser;"
@@ -24,7 +25,9 @@ if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then
   su-exec postgres psql -d ai_intake -c "ALTER SCHEMA public OWNER TO aiuser;"
 
   # Import data
+  echo "Importing database dump..."
   su-exec postgres psql ai_intake < /tmp/igar_clean_database.sql
+  echo "Database dump imported successfully!"
 
   # Grant permissions to aiuser on all objects
   su-exec postgres psql -d ai_intake -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO aiuser;"
