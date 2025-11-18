@@ -13,11 +13,15 @@ import modelsRouter from './routes/models';
 import aiChatRouter from './routes/ai-chat';
 import aiCatalogRouter from './routes/ai-catalog';
 import departmentsRouter from './routes/departments';
+import authRouter from './routes/auth';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 9501;
+
+// Trust proxy - required for Railway/behind reverse proxy
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
@@ -70,6 +74,7 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // API routes
+app.use('/api/auth', authRouter);
 app.use('/api/submissions', submissionsRouter);
 app.use('/api/uploads', uploadsRouter);
 app.use('/api/reference', referenceRouter);
