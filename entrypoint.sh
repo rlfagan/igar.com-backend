@@ -58,5 +58,34 @@ fi
 # No need to run migrations or seeding scripts
 echo "Database loaded from pre-seeded dump - ready to start!"
 
+# FIX: Ensure permissions are set correctly on every startup
+# This fixes the issue where databases initialized before the permission fixes lack write access
+if [ -s /var/lib/postgresql/data/PG_VERSION ]; then
+  echo "Checking and fixing database permissions..."
+  # Start postgres temporarily to fix permissions
+  su-exec postgres pg_ctl -D /var/lib/postgresql/data -w start -o "-p 5432"
+
+  # Grant SUPERUSER to aiuser
+  su-exec postgres psql -c "ALTER USER aiuser WITH SUPERUSER;" 2>&1 || true
+
+  # Fix table ownership
+  for table in $(su-exec postgres psql -d ai_intake -t -c "SELECT tablename FROM pg_tables WHERE schemaname='public';" 2>/dev/null | tr -d ' '); do
+    if [ ! -z "$table" ]; then
+      su-exec postgres psql -d ai_intake -c "ALTER TABLE $table OWNER TO aiuser;" 2>&1 || true
+    fi
+  done
+
+  # Fix sequence ownership
+  for seq in $(su-exec postgres psql -d ai_intake -t -c "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema='public';" 2>/dev/null | tr -d ' '); do
+    if [ ! -z "$seq" ]; then
+      su-exec postgres psql -d ai_intake -c "ALTER SEQUENCE $seq OWNER TO aiuser;" 2>&1 || true
+    fi
+  done
+
+  # Stop postgres cleanly
+  su-exec postgres pg_ctl -D /var/lib/postgresql/data stop -w
+  echo "Database permissions fixed!"
+fi
+
 # Start supervisord
 exec /usr/bin/supervisord -c /etc/supervisord.conf
