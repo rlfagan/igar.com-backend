@@ -38,12 +38,15 @@ router.post('/register', async (req: Request, res: Response) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
+    // Determine role - admin for faganronan@gmail.com, user for others
+    const role = data.email === 'faganronan@gmail.com' ? 'admin' : 'user';
+
     // Create user
     const result = await pool.query(
       `INSERT INTO users (email, password_hash, name, role)
        VALUES ($1, $2, $3, $4)
        RETURNING id, email, name, role, created_at`,
-      [data.email, hashedPassword, data.name, 'user']
+      [data.email, hashedPassword, data.name, role]
     );
 
     const user = result.rows[0];
